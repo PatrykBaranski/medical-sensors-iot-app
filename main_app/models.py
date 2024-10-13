@@ -3,4 +3,3 @@ from django.db import models
 
 class Ecg(models.Model):
     ecg_list = models.TextField(null=True)
-    
