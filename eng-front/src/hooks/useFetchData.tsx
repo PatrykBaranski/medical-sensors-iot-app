@@ -9,7 +9,6 @@ export const useFetchData = <T,>(dataPath:string) => {
       const response = await data.json()
       setData(response)
     }
-
     fetchData()
   }, [dataPath])
     return data
