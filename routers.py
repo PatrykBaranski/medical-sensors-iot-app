@@ -1,5 +1,7 @@
 from rest_framework import routers
+from django.urls import path
 from main_app.viewsets import EcgSet, EcgFourierTransofrmedSet
+from main_app.views import EcgFourierPlotView
 
 router = routers.SimpleRouter()
 
