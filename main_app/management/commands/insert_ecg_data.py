@@ -9,10 +9,10 @@ class Command(BaseCommand):
         for row in ecgs:
             for index,ecg_value in enumerate(row):
                 try:
-                    ecgs_list[index].append(ecg_value)
+                    ecgs_list[index].append(float(ecg_value))
                 except IndexError:
                     ecgs_list.append([])
-                    ecgs_list[index].append(ecg_value)
+                    ecgs_list[index].append(float(ecg_value))
 
         
 

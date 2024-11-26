@@ -22,7 +22,7 @@ type Series = {
 const getConvertDataToArray  = (data: EcgApiType | undefined):Series[] | undefined => {
     const convertedData = data?.results[0].ecg_list.replace('[', '').replace(']', '').split(', ').map((el,i):EcgPoint => ({lp:i ,value:+(el.replaceAll("'", ""))}))
     if(convertedData){
-        return [{label:'Ecg Data', data: convertedData.slice(0, 100)}]
+        return [{label:'Ecg Data', data: convertedData}]
     }
 }
 
@@ -31,6 +31,7 @@ export const EcgChart = () => {
     const [currentEcg, setCurrentEcg] = useState('ecgs')
     const data = useFetchData< EcgApiType>(currentEcg)
     const ecgs =  getConvertDataToArray(data)
+    
 
     const primaryAxis = useMemo(
         (): AxisOptions<EcgPoint> => ({
@@ -74,3 +75,33 @@ export const EcgChart = () => {
     </div>
     )
 }
+import { createRoot } from "react-dom/client";
+import { AgCharts } from "ag-charts-react";
+
+const ChartExample = () => {
+  const [options, setOptions] = useState({
+    title: {
+      text: "Annual Fuel Expenditure",
+    },
+    data: getData(),
+    series: [
+      {
+        type: "line",
+        xKey: "quarter",
+        yKey: "petrol",
+        yName: "Petrol",
+      },
+      {
+        type: "line",
+        xKey: "quarter",
+        yKey: "diesel",
+        yName: "Diesel",
+      },
+    ],
+  });
+
+  return <AgCharts options={options} />;
+};
+
+const root = createRoot(document.getElementById("root"));
+root.render(<ChartExample />);
