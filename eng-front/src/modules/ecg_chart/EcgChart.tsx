@@ -1,107 +1,135 @@
-import { useMemo, useState } from "react"
-import { AxisOptions, Chart } from "react-charts"
-import { ButtonPrimary } from "../../components"
-import { useFetchData } from "../../hooks/useFetchData"
+import {
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+} from "chart.js";
+import zoomPlugin from "chartjs-plugin-zoom";
+import { useMemo, useState } from "react";
+import { Line } from "react-chartjs-2";
+import { ButtonPrimary } from "../../components";
+import { useFetchData } from "../../hooks/useFetchData";
 
-type EcgApiType = {
-    count: number,
-    next:string | null,
-    previous: string | null,
-    results: {ecg_list: string}[]
-}
-type EcgPoint = {
-    lp: number,
-    value: number,
-  }
-  
-type Series = {
-    label: string,
-    data: EcgPoint[]
-  }
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  zoomPlugin
+);
 
-const getConvertDataToArray  = (data: EcgApiType | undefined):Series[] | undefined => {
-    const convertedData = data?.results[0].ecg_list.replace('[', '').replace(']', '').split(', ').map((el,i):EcgPoint => ({lp:i ,value:+(el.replaceAll("'", ""))}))
-    if(convertedData){
-        return [{label:'Ecg Data', data: convertedData}]
-    }
-}
-
-
-export const EcgChart = () => {
-    const [currentEcg, setCurrentEcg] = useState('ecgs')
-    const data = useFetchData< EcgApiType>(currentEcg)
-    const ecgs =  getConvertDataToArray(data)
-    
-
-    const primaryAxis = useMemo(
-        (): AxisOptions<EcgPoint> => ({
-          getValue: datum => datum.lp,
-        }),
-        []
-      )
-    
-      const secondaryAxes = useMemo(
-        (): AxisOptions<EcgPoint>[] => [
-          {
-            getValue: datum => datum.value,
-          },
-        ],
-        []
-      )
-
-    if (!ecgs) return <h1>Loading</h1>
-
-    return (
-    <div className="w-screen h-screen">
-      <div className="h-4/5 w-full" >
-        <Chart
-        options={{
-          data: ecgs,
-          primaryAxis,
-          secondaryAxes,
-        }}
-        />
-      </div> 
-      <div className="w-full flex gap-7 justify-center">
-        <ButtonPrimary text="Poprzednie badanie"  onClick={() => {
-          if(!data?.previous) return
-          setCurrentEcg(data.previous.split('/').slice(-2).join('/'))
-        }}/>
-        <ButtonPrimary onClick={() => {
-          if(!data?.next) return
-          setCurrentEcg(data.next.split('/').slice(-2).join('/'))
-        }} text="Następne badanie"/>
-      </div>
-    </div>
-    )
-}
-import { createRoot } from "react-dom/client";
-import { AgCharts } from "ag-charts-react";
-
-const ChartExample = () => {
-  const [options, setOptions] = useState({
+const options = {
+  responsive: true,
+  interaction: {
+    mode: "index" as const,
+    intersect: false,
+  },
+  stacked: false,
+  plugins: {
     title: {
-      text: "Annual Fuel Expenditure",
+      display: true,
+      text: "Chart.js Line Chart - Multi Axis",
     },
-    data: getData(),
-    series: [
-      {
-        type: "line",
-        xKey: "quarter",
-        yKey: "petrol",
-        yName: "Petrol",
+    zoom: {
+      zoom: {
+        wheel: {
+          enabled: true,
+        },
+        pinch: {
+          enabled: true,
+        },
+        mode: "x",
       },
-      {
-        type: "line",
-        xKey: "quarter",
-        yKey: "diesel",
-        yName: "Diesel",
+    },
+  },
+  scales: {
+    y: {
+      type: "linear" as const,
+      display: true,
+      position: "left" as const,
+    },
+    y1: {
+      type: "linear" as const,
+      display: true,
+      position: "right" as const,
+      grid: {
+        drawOnChartArea: false,
       },
-    ],
-  });
-
-  return <AgCharts options={options} />;
+    },
+  },
 };
 
-const root = createRoot(document.getElementById("root"));
-root.render(<ChartExample />);
+type EcgApiType = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: { ecg_list: string }[];
+};
+
+const getConvertDataToArray = (data: EcgApiType | undefined) => {
+  const labels: number[] = [];
+  const convertedData = data?.results[0].ecg_list
+    .replace("[", "")
+    .replace("]", "")
+    .split(", ")
+    .map((el, i) => {
+      labels.push(i);
+      return +el.replaceAll("'", "");
+    });
+
+  if (convertedData) {
+    return { data: convertedData, labels };
+  }
+};
+
+export const EcgChart = () => {
+  const [currentEcg, setCurrentEcg] = useState("ecgs");
+  const data = useFetchData<EcgApiType>(currentEcg);
+  const ecgs = useMemo(() => getConvertDataToArray(data), [data]);
+
+  const dataxdd = {
+    labels: ecgs?.labels,
+    datasets: [
+      {
+        label: "Dataset 1",
+        data: ecgs?.data,
+        borderColor: "rgb(255, 99, 132)",
+        backgroundColor: "rgba(255, 99, 132, 0.5)",
+        yAxisID: "y",
+      },
+    ],
+  };
+
+  if (!ecgs) return <h1>Loading</h1>;
+
+  return (
+    <div className="w-screen h-screen">
+      <div className="h-4/5">
+        <Line options={options} data={dataxdd} />
+      </div>
+      <div className="w-full flex gap-7 justify-center">
+        <ButtonPrimary
+          text="Poprzednie badanie"
+          onClick={() => {
+            if (!data?.previous) return;
+            setCurrentEcg(data.previous.split("/").slice(-2).join("/"));
+          }}
+        />
+        <ButtonPrimary
+          onClick={() => {
+            if (!data?.next) return;
+            setCurrentEcg(data.next.split("/").slice(-2).join("/"));
+          }}
+          text="Następne badanie"
+        />
+      </div>
+    </div>
+  );
+};

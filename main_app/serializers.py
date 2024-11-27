@@ -6,7 +6,13 @@ class EcgSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ecg
-        fields =["id",'ecg_list'] 
+        fields =["id",'ecg_list']
+
+class EcgIdListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Ecg
+        fields =["id"]
 
 class EcgFourierTransofrmedSerializer(serializers.ModelSerializer):
 

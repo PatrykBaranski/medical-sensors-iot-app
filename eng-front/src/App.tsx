@@ -1,9 +1,14 @@
-import { EcgChart } from "./modules/ecg_chart/EcgChart"
+import { BrowserRouter, Route, Routes } from "react-router";
+import { Home } from "./modules/home/Home";
 
 const App = () => {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
 
-    
-    return <EcgChart/>
-}
-
-export default App
+export default App;
