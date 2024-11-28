@@ -11,8 +11,9 @@ import {
 import zoomPlugin from "chartjs-plugin-zoom";
 import { useMemo, useState } from "react";
 import { Line } from "react-chartjs-2";
-import { ButtonPrimary } from "../../components";
-import { useFetchData } from "../../hooks/useFetchData";
+import { useParams } from "react-router";
+import { ButtonPrimary } from "../../../components";
+import { useFetchData } from "../../../hooks/useFetchData";
 
 ChartJS.register(
   CategoryScale,
@@ -90,6 +91,8 @@ const getConvertDataToArray = (data: EcgApiType | undefined) => {
 };
 
 export const EcgChart = () => {
+  const { id } = useParams();
+  console.log(id);
   const [currentEcg, setCurrentEcg] = useState("ecgs");
   const data = useFetchData<EcgApiType>(currentEcg);
   const ecgs = useMemo(() => getConvertDataToArray(data), [data]);
